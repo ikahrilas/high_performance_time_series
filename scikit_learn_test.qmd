@@ -1,0 +1,136 @@
+---
+title: "tensorflow_test"
+format: html
+editor: visual
+---
+
+```{r install packages}
+# Load Packages ----
+library(tidyverse)
+library(reticulate)
+library(tensorflow)
+```
+
+```{r}
+# Install Tensorflow ----
+install_tensorflow(
+    method               = "conda", 
+    #version              = "default", # Installs TF 2.0.0 (as of May 15, 2020)
+    envname              = "tensorflow_test", 
+    conda_python_version = "3.10",
+    extra_packages       = c("matplotlib", "numpy", "pandas", "scikit-learn")
+)
+
+conda_list()
+
+use_condaenv("tensorflow_test", required = TRUE)
+
+py_config()
+```
+
+Import python libraries
+
+```{python}
+
+# Python
+
+# TensorFlow and tf.keras
+import tensorflow as tf
+import pandas as pd
+from tensorflow import keras
+
+# Helper libraries
+import numpy as np
+import matplotlib.pyplot as plt
+
+# check tensorflow version
+print(tf.__version__)
+```
+
+load data
+
+```{python}
+
+1 + 1
+
+np.arange(1, 10)
+
+
+df = pd.DataFrame(data = {"sequence":np.arange(1,20,.01)})
+
+df.head()
+
+df.tail()
+
+df.info()
+
+df = df.assign(value=np.sin(df["sequence"]))
+
+df
+```
+
+Testing Matplotlib
+
+```{python}
+import matplotlib.pyplot as plt
+
+df.plot(x = "sequence", y = "value", title = "Matplotlib")
+plt.show()
+```
+
+```{python}
+from sklearn.ensemble import RandomForestClassifier
+clf = RandomForestClassifier(random_state=0)
+
+X = [[ 1,  2,  3],  # 2 samples, 3 features
+     [11, 12, 13]]
+     
+y = [0, 1]  # classes of each sample
+
+clf.fit(X, y)
+
+clf.predict(X)
+```
+
+affinity propagation test
+
+```{python}
+
+from sklearn.cluster import AffinityPropagation
+from sklearn.datasets import make_blobs
+
+# #############################################################################
+# Generate sample data
+centers = [[1, 1], [-1, -1], [1, -1]]
+X, labels_true = make_blobs(n_samples=300, centers=centers, cluster_std=0.5,
+                            random_state=0)
+
+# Compute Affinity Propagation
+af = AffinityPropagation(preference=-50).fit(X)
+cluster_centers_indices = af.cluster_centers_indices_
+labels = af.labels_
+
+n_clusters_ = len(cluster_centers_indices)
+
+# #############################################################################
+# Plot result
+import matplotlib.pyplot as plt
+from itertools import cycle
+
+plt.close('all')
+plt.figure(1)
+plt.clf()
+
+colors = cycle('bgrcmykbgrcmykbgrcmykbgrcmyk')
+for k, col in zip(range(n_clusters_), colors):
+    class_members = labels == k
+    cluster_center = X[cluster_centers_indices[k]]
+    plt.plot(X[class_members, 0], X[class_members, 1], col + '.')
+    plt.plot(cluster_center[0], cluster_center[1], 'o', markerfacecolor=col,
+             markeredgecolor='k', markersize=14)
+    for x in X[class_members]:
+        plt.plot([cluster_center[0], x[0]], [cluster_center[1], x[1]], col)
+
+plt.title('Estimated number of clusters: %d' % n_clusters_)
+plt.show()
+```
